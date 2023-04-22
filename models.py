@@ -230,6 +230,35 @@ class Community(db.Model):
             'updated_at': self.updated_at
         }
     
+# model for community members
+
+class Member(db.Model):
+    id = db.Column(db.Integer,primary_key = True)
+    community_id = db.Column(db.Integer, db.ForeignKey('community.id'), nullable=False)
+    username = db.Column(db.String(200),nullable=False) 
+    profile = db.Column(db.String(200))
+    bio = db.Column(db.Text,nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def __init__(self,community_id,username,profile,bio):
+        self.username = username
+        self.profile = profile
+        self.bio = bio
+        self.community_id = community_id
+        self.created_at = datetime.utcnow()
+        self.updated_at = datetime.utcnow()
+
+    def to_dict(self):
+        return{
+            'id':self.id,
+            'community_id':self.community_id,
+            'username':self.username,
+            'profile':self.profile,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
+        }
+
 # this is the model for adding a post to a community
 class Post(db.Model):
     id = db.Column(db.Integer,primary_key = True)
