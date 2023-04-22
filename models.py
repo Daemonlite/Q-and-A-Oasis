@@ -196,3 +196,38 @@ class DownVote(db.Model):
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
+    
+class Community(db.Model):
+    id = db.Column(db.Integer,primary_key = True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    logo = db.Column(db.String(255))
+    name = db.Column(db.String(200),nullable = False)
+    description = db.Column(db.Text, nullable = False)
+    members = db.relationship('Member', backref=db.backref('community',lazy=True)) 
+    posts = db.relationship('Post',backref=db.backref('community',lazy=True))
+    user = db.relationship('User', backref=db.backref('answers', lazy=True))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def __init__(self,user_id,name,description,logo):
+        self.user_id = user_id
+        self.name = name
+        self.description = description
+        self.logo = logo
+        self.created_at = datetime.utcnow()
+        self.updated_at = datetime.utcnow()
+
+    def to_dict(self):
+        return{
+            'id': self.id,
+            'user_id': self.user_id,
+            'name:':self.name,
+            'description':self.description,
+            'logo':self.logo,
+            'posts': [post.to_dict() for post in self.posts],
+            'members':[member.to_dict() for member in self.members],
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
+        }
+    
+        
