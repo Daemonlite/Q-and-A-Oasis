@@ -15,7 +15,7 @@ def add_cors_headers(response):
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE') # Allow specific HTTP methods
     return response
 # Configure the database connection settings
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mydatabase.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///oasis.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize SQLAlchemy with the Flask app
@@ -37,7 +37,7 @@ def user_profile(user_id):
     else:
         return jsonify({'error': 'Profile not found.'}), 404
 
-@app.route('/register', methods=["POST"])
+@app.route('/users/register', methods=["POST"])
 def register_user():
     name = request.json['name']
     email = request.json['email']
@@ -48,7 +48,7 @@ def register_user():
     db.session.commit()
     return jsonify({'message': 'User added successfully.', 'user': new_user.to_dict()}), 201
 
-@app.route('/login', methods=["POST"])
+@app.route('/users/login', methods=["POST"])
 def login():
     email = request.json['email']
     password = request.json['password']
