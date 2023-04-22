@@ -16,14 +16,19 @@ class User(db.Model):
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     profile = db.Column(db.String(255))
+    bio = db.Column(db.String(400))
+    isAdmin = db.Column(db.Boolean,default = False)
+    isModerator = db.Column(db.Boolean,default = False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    def __init__(self, name, email, password, profile):
+    def __init__(self, name, email, password, profile,isAdmin,isModerator):
         self.name = name
         self.email = email
         self.password = password
         self.profile = profile
+        self.isAdmin = isAdmin
+        self.isModerator = isModerator
 
     def to_dict(self):
         return {
@@ -32,13 +37,15 @@ class User(db.Model):
             'email': self.email,
             'password': self.password,
             'profile': self.profile,
+            'isAdmin':self.isAdmin,
+            'isModerator':self.isModerator,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
 
 
 
-# Class definition for Post model
+# Class definition for Question model
 
 class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -78,14 +85,16 @@ class Answer(db.Model):
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     question = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
+    topic = db.Column(db.String(300),nullable=False)
     user = db.relationship('User', backref=db.backref('answers', lazy=True))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    def __init__(self, content, user_id, question):
+    def __init__(self, content, user_id, question,topic):
         self.content = content
         self.user_id = user_id
         self.question = question
+        self.topic = topic
         self.created_at = datetime.utcnow()
         self.updated_at = datetime.utcnow()
 
@@ -101,6 +110,7 @@ class Answer(db.Model):
             'content': self.content,
             'user_id': self.user_id,
             'question': self.question,
+            'topic':self.topic,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
@@ -108,34 +118,34 @@ class Answer(db.Model):
 
 # Class definition for Like model
 
-class Like(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    question_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
-    user = db.relationship('User', backref=db.backref('likes', lazy=True))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+# class Like(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+#     question_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+#     user = db.relationship('User', backref=db.backref('likes', lazy=True))
+#     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+#     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    def __init__(self, user_id, question_id):
-        self.user_id = user_id
-        self.question_id = question_id
-        self.created_at = datetime.utcnow()
-        self.updated_at = datetime.utcnow()
+#     def __init__(self, user_id, question_id):
+#         self.user_id = user_id
+#         self.question_id = question_id
+#         self.created_at = datetime.utcnow()
+#         self.updated_at = datetime.utcnow()
 
-    def to_dict(self):
-        """
-        Convert Like model instance to a dictionary.
+#     def to_dict(self):
+#         """
+#         Convert Like model instance to a dictionary.
 
-        Returns:
-        dict: A dictionary representing the Like model instance.
-        """
-        return {
-            'id': self.id,
-            'user_id': self.user_id,
-            'question_id': self.question_id,
-            'created_at': self.created_at,
-            'updated_at': self.updated_at
-        }
+#         Returns:
+#         dict: A dictionary representing the Like model instance.
+#         """
+#         return {
+#             'id': self.id,
+#             'user_id': self.user_id,
+#             'question_id': self.question_id,
+#             'created_at': self.created_at,
+#             'updated_at': self.updated_at
+#         }
 
 
 class UpVote(db.Model):
