@@ -17,18 +17,14 @@ class User(db.Model):
     password = db.Column(db.String(255), nullable=False)
     profile = db.Column(db.String(255))
     bio = db.Column(db.String(400))
-    isAdmin = db.Column(db.Boolean,default = False)
-    isModerator = db.Column(db.Boolean,default = False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    def __init__(self, name, email, password, profile,isAdmin,isModerator):
+    def __init__(self, name, email, password, profile):
         self.name = name
         self.email = email
         self.password = password
         self.profile = profile
-        self.isAdmin = isAdmin
-        self.isModerator = isModerator
 
     def to_dict(self):
         return {
@@ -37,8 +33,6 @@ class User(db.Model):
             'email': self.email,
             'password': self.password,
             'profile': self.profile,
-            'isAdmin':self.isAdmin,
-            'isModerator':self.isModerator,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
@@ -55,7 +49,7 @@ class Question(db.Model):
     user = db.relationship('User', backref=db.backref('questions', lazy=True))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    answers = db.relationship('Answer', backref='question', lazy=True) # Added Answers relationship
+    answers = db.relationship('Answer', backref='questions', lazy=True) # Added Answers relationship
     
 
     def __init__(self, title, content, user_id):
@@ -86,7 +80,7 @@ class Answer(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     question = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
     topic = db.Column(db.String(300),nullable=False)
-    user = db.relationship('User', backref=db.backref('answers', lazy=True))
+    user = db.relationship('User', backref=db.backref('answer', lazy=True))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -152,7 +146,7 @@ class UpVote(db.Model):
     id = db.Column(db.Integer,primary_key = True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
-    user = db.relationship('User', backref=db.backref('votes', lazy=True))
+    user = db.relationship('User', backref=db.backref('vote', lazy=True))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
