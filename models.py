@@ -56,7 +56,7 @@ class Question(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     answers = db.relationship('Answer', backref='question', lazy=True) # Added Answers relationship
-    likes = db.relationship('Like', backref='question', lazy=True) # Added likes relationship
+    
 
     def __init__(self, title, content, user_id):
         self.title = title
@@ -118,34 +118,34 @@ class Answer(db.Model):
 
 # Class definition for Like model
 
-# class Like(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-#     question_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
-#     user = db.relationship('User', backref=db.backref('likes', lazy=True))
-#     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-#     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+class Like(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+    user = db.relationship('User', backref=db.backref('likes', lazy=True))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-#     def __init__(self, user_id, question_id):
-#         self.user_id = user_id
-#         self.question_id = question_id
-#         self.created_at = datetime.utcnow()
-#         self.updated_at = datetime.utcnow()
+    def __init__(self, user_id, post_id):
+        self.user_id = user_id
+        self.post_id = post_id
+        self.created_at = datetime.utcnow()
+        self.updated_at = datetime.utcnow()
 
-#     def to_dict(self):
-#         """
-#         Convert Like model instance to a dictionary.
+    def to_dict(self):
+        """
+        Convert Like model instance to a dictionary.
 
-#         Returns:
-#         dict: A dictionary representing the Like model instance.
-#         """
-#         return {
-#             'id': self.id,
-#             'user_id': self.user_id,
-#             'question_id': self.question_id,
-#             'created_at': self.created_at,
-#             'updated_at': self.updated_at
-#         }
+        Returns:
+        dict: A dictionary representing the Like model instance.
+        """
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'post_id': self.post_id,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
+        }
 
 
 class UpVote(db.Model):
@@ -230,4 +230,64 @@ class Community(db.Model):
             'updated_at': self.updated_at
         }
     
-        
+# this is the model for adding a post to a community
+class Post(db.Model):
+    id = db.Column(db.Integer,primary_key = True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    content = db.Column(db.Text,nullable = False)
+    commnunity_id = db.Column(db.Integer, db.ForeignKey('community.id'), nullable=False)
+    comments = db.relationship('Comment', backref='post', lazy=True) 
+    likes = db.relationship('Like', backref='post', lazy=True) # Added likes relationship
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def __init__(self,user_id,content,community_id):
+        self.user_id = user_id
+        self.content = content
+        self.community_id = community_id
+        self.created_at = datetime.utcnow()
+        self.updated_at = datetime.utcnow()
+
+    def to_dict(self):
+        return{
+            'id':self.id,
+            'user_id':self.user_id,
+            'community_id':self.community_id,
+            'content':self.content,
+            'comments':[comment.to_dict() for comment in self.comments],
+            'likes':[like.to_dict() for like in self.likes],
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
+        }
+    
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+    user = db.relationship('User', backref=db.backref('comments', lazy=True))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def __init__(self, content, user_id, post_id):
+        self.content = content
+        self.user_id = user_id
+        self.post_id = post_id
+        self.created_at = datetime.utcnow()
+        self.updated_at = datetime.utcnow()
+
+    def to_dict(self):
+        """
+        Convert Comment model instance to a dictionary.
+
+        Returns:
+        dict: A dictionary representing the Comment model instance.
+        """
+        return {
+            'id': self.id,
+            'content': self.content,
+            'user_id': self.user_id,
+            'post_id': self.post_id,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
+        }
