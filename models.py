@@ -138,7 +138,7 @@ class Like(db.Model):
         }
 
 
-class UpVotes(db.Model):
+class UpVote(db.Model):
     id = db.Column(db.Integer,primary_key = True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
@@ -163,7 +163,7 @@ class UpVotes(db.Model):
         }
 
 
-class DownVotes(db.Model):
+class DownVote(db.Model):
     id = db.Column(db.Integer,primary_key = True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
