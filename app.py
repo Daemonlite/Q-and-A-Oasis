@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from models import db, User,Question,Like
+from models import db, User,Question,Like,Answer
 from flask_cors import CORS
 
 
@@ -170,6 +170,56 @@ def get_likes(question_id):
     likes_dict = [like.to_dict() for like in likes]
 
     return jsonify({'likes': likes_dict}), 200
+
+
+
+
+# Route to create a new Answer for a Question
+@app.route('/question/<int:question_id>/answer', methods=['POST'])
+def create_answer(question_id):
+    # Get the question by ID
+    quest = Question.query.get(question_id)
+    if not quest:
+        return jsonify({'error': 'question not found'}), 404
+
+    # Get the data from the request
+    content = request.json.get('content')
+    user_id = request.json.get('user_id')
+    question = request.json.get('question')
+    topic = request.json.get('topic')
+
+    # Check if content is provided
+    if not content:
+        return jsonify({'error': ' content is required'}), 400
+
+    # Check if user_id is provided
+    if not user_id:
+        return jsonify({'error': 'User ID is required'}), 400
+
+    # Create a new comment
+    answer = Answer(content=content, user_id=user_id, question=question,topic=topic)
+    db.session.add(answer)
+    db.session.commit()
+
+    return jsonify({'message': 'Answer added successfully', 'comment_id': question}), 201
+
+
+# Route to get all answers for a question
+@app.route('/question/<int:quest_id>/answers', methods=['GET'])
+def get_answers(quest_id):
+    # Get the question by ID
+    question = Question.query.get(quest_id)
+    if not question:
+        return jsonify({'error': 'Question not found'}), 404
+
+    # Get all answers for the question
+    answer = Answer.query.filter_by(quest_id=quest_id).all()
+
+    # Convert answers to a list of dictionaries
+    answers_dict = [answers.to_dict() for answers in answer]
+
+    return jsonify({'answers': answers_dict }), 200
+
 
 if __name__ == '__main__':
     with app.app_context():  
