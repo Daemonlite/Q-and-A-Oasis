@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from models import db, User,Question
+from models import db, User,Question,Like
 from flask_cors import CORS
 
 
@@ -131,7 +131,45 @@ def delete_question():
     else:
         return jsonify({'error': 'question not found.'}), 404
 
+# like qestion rotes
+@app.route('/question/<int:question_id>/like', methods=['POST'])
+def create_like(question_id):
+    # Get the question by ID
+    question = Question.query.get(question_id)
+    if not question:
+        return jsonify({'error': 'question not found'}), 404
 
+    # Get the data from the request
+    user_id = request.json.get('user_id')
+
+    # Check if user has already liked the question
+    existing_like = Like.query.filter_by(user_id=user_id, question_id=question.id).first()
+    if existing_like:
+        return jsonify({'message': 'You have already liked this question'}), 400
+
+    # Create a new like
+    like = Like(user_id=user_id, question_id=question.id)
+    db.session.add(like)
+    db.session.commit()
+
+    return jsonify({'message': 'Like created successfully', 'like_id': like.id}), 201
+
+
+# Route to get all likes for a question
+@app.route('/question/<int:question_id>/likes', methods=['GET'])
+def get_likes(question_id):
+    # Get the question by ID
+    question = question.query.get(question_id)
+    if not question:
+        return jsonify({'error': 'question not found'}), 404
+
+    # Get all likes for the question
+    likes = Like.query.filter_by(question_id=question.id).all()
+
+    # Convert likes to a list of dictionaries
+    likes_dict = [like.to_dict() for like in likes]
+
+    return jsonify({'likes': likes_dict}), 200
 
 if __name__ == '__main__':
     with app.app_context():  
