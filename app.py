@@ -76,7 +76,30 @@ def get_questions():
     question_list = [quest.to_dict() for quest in questions]
     return jsonify(quest = question_list)
 
+
+@app.route('/questions/<int:id>',methods=['GET'])
+def get_question_by_id(quest_id):
+    question = Question.query.get(quest_id)
+    if question:
+        return jsonify(question.to_dict())
+    else:
+        return jsonify({'error': 'question not found.'}), 404
+
+@app.route('/question/create',methods=['POST'])
+def create_question():
+    title = request.json['title']
+    content = request.json['content']
+    user_id = request.json['user_id']
+    new_question = Question(title=title,content=content,user_id=user_id)
+    db.session.add(new_question)
+    db.session.commit()
+    return jsonify({'message': 'Qusetion added successfully.', 'user': new_question.to_dict()}), 201
+
+
+
+
 if __name__ == '__main__':
     with app.app_context():  
         db.create_all()  
     app.run(debug=True)
+
