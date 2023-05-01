@@ -119,6 +119,20 @@ def update_question(id):
     else:
         return jsonify({'error': 'question not found.'}), 404
 
+
+
+@app.route('/question/<int:id>',methods=["DELETE"])
+def delete_question():
+    question = Question.query.get(id)
+    if question:
+        db.session.delete(question)
+        db.session.commit()
+        return jsonify({'message': 'question deleted successfully.'})
+    else:
+        return jsonify({'error': 'question not found.'}), 404
+
+
+
 if __name__ == '__main__':
     with app.app_context():  
         db.create_all()  
