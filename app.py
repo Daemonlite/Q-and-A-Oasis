@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from models import db, User
+from models import db, User,Question
 from flask_cors import CORS
 
 
@@ -21,7 +21,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Initialize SQLAlchemy with the Flask app
 db.init_app(app)
 
-# Define your routes
+# user  routes
 
 @app.route('/users', methods=["GET"])
 def get_users():
@@ -67,7 +67,15 @@ def delete_user(id):
         return jsonify({'message': 'user deleted successfully.'})
     else:
         return jsonify({'error': 'user not found.'}), 404
-    
+
+
+#Question Routes
+@app.route('/questions',methods=['GET'])
+def get_questions():
+    questions = Question.query.all()
+    question_list = [quest.to_dict() for quest in questions]
+    return jsonify(quest = question_list)
+
 if __name__ == '__main__':
     with app.app_context():  
         db.create_all()  
