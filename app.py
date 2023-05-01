@@ -68,6 +68,17 @@ def delete_user(id):
     else:
         return jsonify({'error': 'user not found.'}), 404
 
+@app.route('/users/<int:id>', methods=['PUT'])
+def update_user_info():
+    user = Question.query.get(id)
+    if user:
+       user.name = request.json['title']
+       user.profile = request.json['content']
+       user.email = request.json['user_id']
+       db.session.commit()
+       return jsonify({'message': 'user updated successfully.', 'user': user.to_dict()})
+    else:
+        return jsonify({'error': 'user not found.'}), 404
 
 #Question Routes
 @app.route('/questions',methods=['GET'])
@@ -96,7 +107,17 @@ def create_question():
     return jsonify({'message': 'Qusetion added successfully.', 'user': new_question.to_dict()}), 201
 
 
-
+@app.route('/question/<int:id>',methods=["PUT"])
+def update_question(id):
+    quest = Question.query.get(id)
+    if quest:
+        quest.title = request.json['title']
+        quest.content = request.json['content']
+        quest.user_id = request.json['user_id']
+        db.session.commit()
+        return jsonify({'message': 'quest updated successfully.', 'quest': quest.to_dict()})
+    else:
+        return jsonify({'error': 'question not found.'}), 404
 
 if __name__ == '__main__':
     with app.app_context():  
