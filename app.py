@@ -37,26 +37,38 @@ def user_profile(user_id):
     else:
         return jsonify({'error': 'Profile not found.'}), 404
 
+import bcrypt
+
 @app.route('/users/register', methods=["POST"])
 def register_user():
     name = request.json['name']
     email = request.json['email']
     password = request.json['password']
     profile = request.json['profile']
-    new_user = User(name=name, email=email, password=password,profile=profile)
+    
+    # Hash the password
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    
+    # Create a new user with the hashed password
+    new_user = User(name=name, email=email, password=hashed_password, profile=profile)
+    
+    # Add the new user to the database
     db.session.add(new_user)
     db.session.commit()
+    
     return jsonify({'message': 'User added successfully.', 'user': new_user.to_dict()}), 201
+
 
 @app.route('/users/login', methods=["POST"])
 def login():
     email = request.json['email']
     password = request.json['password']
     user = User.query.filter_by(email=email).first()
-    if user and user.password == password:
+    if user and bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
         return jsonify({'message': 'Login successful.', 'user': user.to_dict()})
     else:
         return jsonify({'error': 'Invalid email or password.'}), 401
+
 
 @app.route('/users/<int:id>', methods=['DELETE'])
 def delete_user(id):
