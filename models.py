@@ -109,18 +109,18 @@ class Answer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    question = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
     topic = db.Column(db.String(300), nullable=False)
     upvotes = db.relationship('UpVote', backref='answer_upvotes', lazy=True)
-    downvotes = db.relationship('DownVote', backref='answer', lazy=True)
-    user = db.relationship('User', backref=db.backref('answer', lazy=True))
+    downvotes = db.relationship('DownVote', backref='answer_downvotes', lazy=True)
+    user = db.relationship('User', backref=db.backref('answers', lazy=True))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    def __init__(self, content, user_id, question, topic):
+    def __init__(self, content, user_id, question_id, topic):
         self.content = content
         self.user_id = user_id
-        self.question = question
+        self.question_id = question_id
         self.topic = topic
         self.created_at = datetime.utcnow()
         self.updated_at = datetime.utcnow()
@@ -130,7 +130,7 @@ class Answer(db.Model):
             'id': self.id,
             'content': self.content,
             'user_id': self.user_id,
-            'question': self.question,
+            'question_id': self.question_id,
             'topic': self.topic,
             'upvotes': [upvote.to_dict() for upvote in self.upvotes],
             'downvotes': [downvote.to_dict() for downvote in self.downvotes],
@@ -141,13 +141,14 @@ class Answer(db.Model):
 
 
 
+
+
 #definition for the upvote model
 class UpVote(db.Model):
-    id = db.Column(db.Integer,primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     answer_id = db.Column(db.Integer, db.ForeignKey('answer.id'), nullable=False)
     user = db.relationship('User', backref=db.backref('vote', lazy=True))
-    answer = db.relationship('Answer', backref=db.backref('upvotes', lazy=True))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -168,21 +169,25 @@ class UpVote(db.Model):
         }
 
 
+
 #definition for the downvote model
 class DownVote(db.Model):
-    id = db.Column(db.Integer,primary_key = True)
+    id = db.Column(db.Integer,primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
+    answer_id = db.Column(db.Integer, db.ForeignKey('answer.id'), nullable=False) # Add this line
     user = db.relationship('User', backref=db.backref('votes', lazy=True))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    def __init__(self,user_id,question_id,user):
+    def __init__(self,user_id,question_id,answer_id,user):
         self.user_id = user_id
         self.question_id = question_id
+        self.answer_id = answer_id
         self.user = user
         self.created_at = datetime.utcnow()
         self.updated_at = datetime.utcnow()
+
 
     def to_dict(self):
         return{
@@ -202,7 +207,7 @@ class Community(db.Model):
     description = db.Column(db.Text, nullable = False)
     members = db.relationship('Member', backref=db.backref('community',lazy=True)) 
     posts = db.relationship('Post',backref=db.backref('community',lazy=True))
-    user = db.relationship('User', backref=db.backref('answers', lazy=True))
+    user = db.relationship('User', backref=db.backref('community', lazy=True))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
