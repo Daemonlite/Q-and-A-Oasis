@@ -1,6 +1,9 @@
 from flask import Flask, jsonify, request
 from models import db, User,Question,Like,Answer,UpVote,DownVote
 from flask_cors import CORS
+import bcrypt
+import cloudinary
+import cloudinary.uploader
 
 
 
@@ -21,6 +24,11 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Initialize SQLAlchemy with the Flask app
 db.init_app(app)
 
+cloudinary.config(
+            cloud_name='dexc98myq',
+            api_key='872169569198661',
+            api_secret='AC9O0BiDuGNyfF5iipr-cBl9Gvo'
+        )
 # user  routes
 
 @app.route('/users', methods=["GET"])
@@ -37,7 +45,7 @@ def user_profile(user_id):
     else:
         return jsonify({'error': 'Profile not found.'}), 404
 
-import bcrypt
+
 
 @app.route('/users/register', methods=["POST"])
 def register_user():
@@ -46,11 +54,15 @@ def register_user():
     password = request.json['password']
     profile = request.json['profile']
     
+    # upload profile image
+    result =  cloudinary.uploader.upload(profile)
+    profileImageUrl = result['secure_url']
+    print(profileImageUrl)
     # Hash the password
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     
     # Create a new user with the hashed password
-    new_user = User(name=name, email=email, password=hashed_password, profile=profile)
+    new_user = User(name=name, email=email, password=hashed_password, profile=profileImageUrl)
     
     # Add the new user to the database
     db.session.add(new_user)
