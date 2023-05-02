@@ -258,11 +258,20 @@ def vote_up(vote_id):
         return jsonify({'error': "answer not found"})
 
     user_id = request.json.get('user_id')
+    
+     # check if user has already voted
+    exist_upvote = UpVote.query.filter_by(user_id=user_id, answer_id=answer.id).first()
+    exist_downvote = DownVote.query.filter_by(user_id=user_id, answer_id=answer.id).first()
 
-    # check if user has already voted
-    exist_vote = UpVote.query.filter_by(user_id=user_id, answer_id=answer.id).first()
-    if exist_vote:
-        return jsonify({'message': 'you already voted '})
+    if exist_downvote:
+        db.session.delete(exist_downvote)
+        db.session.commit()
+       
+
+
+    if exist_upvote:
+       return jsonify({'message': 'you already upvoted this answer'})
+       
 
     # create new upvote
     upvote = UpVote(user_id=user_id, answer_id=answer.id)

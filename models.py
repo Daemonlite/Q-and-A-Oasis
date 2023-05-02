@@ -152,10 +152,9 @@ class UpVote(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    def __init__(self, user_id, answer_id, user):
+    def __init__(self, user_id, answer_id):
         self.user_id = user_id
         self.answer_id = answer_id
-        self.user = user
         self.created_at = datetime.utcnow()
         self.updated_at = datetime.utcnow()
 
@@ -174,17 +173,14 @@ class UpVote(db.Model):
 class DownVote(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
     answer_id = db.Column(db.Integer, db.ForeignKey('answer.id'), nullable=False) # Add this line
     user = db.relationship('User', backref=db.backref('votes', lazy=True))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    def __init__(self,user_id,question_id,answer_id,user):
+    def __init__(self,user_id,answer_id):
         self.user_id = user_id
-        self.question_id = question_id
         self.answer_id = answer_id
-        self.user = user
         self.created_at = datetime.utcnow()
         self.updated_at = datetime.utcnow()
 
@@ -193,7 +189,6 @@ class DownVote(db.Model):
         return{
              'id': self.id,
             'user_id': self.user_id,
-            'question_id': self.question_id,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
