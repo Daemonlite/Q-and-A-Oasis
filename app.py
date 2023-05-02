@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from models import db, User,Question,Like,Answer
+from models import db, User,Question,Like,Answer,UpVote,DownVote
 from flask_cors import CORS
 
 
@@ -219,6 +219,25 @@ def get_answers(quest_id):
     answers_dict = [answers.to_dict() for answers in answer]
 
     return jsonify({'answers': answers_dict }), 200
+
+
+#Routes for upvotes and downvotes
+
+@app.route('/vote/upvotes',methods=['GET'])
+def get_upvotes():
+    votes = UpVote.query.all()
+    vote_list = [vote.to_dict() for vote in votes]
+    return jsonify({'upvotes':vote_list})
+
+
+@app.route('/vote/<int:vote_id>/upvotes')
+def get_vote_by_id(vote_id):
+    votes = UpVote.query.get(vote_id)
+    if votes:
+        return jsonify(votes.to_dict())
+    else:
+        return jsonify({'error':"votes not found"}),404
+
 
 
 if __name__ == '__main__':
