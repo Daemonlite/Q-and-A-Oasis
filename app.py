@@ -238,7 +238,20 @@ def get_vote_by_id(vote_id):
     else:
         return jsonify({'error':"votes not found"}),404
 
+@app.route('/votes/upvote',methods=['POST'])
+def vote_up(vote_id):
+    #get answer by id
+    answer = Answer.query.get(vote_id)
 
+    if not answer:
+        return jsonify({'error':"answer not found"})
+    
+    user_id = request.json.get('user_id')
+
+    #check if user has already voted
+    exist_vote = UpVote.query.filter_by(user_id = user_id,answer_id = answer.id)
+    if exist_vote:
+        return jsonify({'message':'you already voted '})
 
 if __name__ == '__main__':
     with app.app_context():  
