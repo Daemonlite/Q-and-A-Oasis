@@ -223,35 +223,70 @@ def get_answers(quest_id):
 
 #Routes for upvotes and downvotes
 
-@app.route('/vote/upvotes',methods=['GET'])
-def get_upvotes():
-    votes = UpVote.query.all()
-    vote_list = [vote.to_dict() for vote in votes]
-    return jsonify({'upvotes':vote_list})
-
-
-@app.route('/vote/<int:vote_id>/upvotes')
-def get_vote_by_id(vote_id):
-    votes = UpVote.query.get(vote_id)
-    if votes:
-        return jsonify(votes.to_dict())
-    else:
-        return jsonify({'error':"votes not found"}),404
-
-@app.route('/votes/upvote',methods=['POST'])
+@app.route('/votes/upvote/<int:vote_id>', methods=['POST'])
 def vote_up(vote_id):
-    #get answer by id
+    # get answer by id
     answer = Answer.query.get(vote_id)
 
     if not answer:
-        return jsonify({'error':"answer not found"})
-    
+        return jsonify({'error': "answer not found"})
+
     user_id = request.json.get('user_id')
 
-    #check if user has already voted
-    exist_vote = UpVote.query.filter_by(user_id = user_id,answer_id = answer.id)
+    # check if user has already voted
+    exist_vote = UpVote.query.filter_by(user_id=user_id, answer_id=answer.id).first()
     if exist_vote:
-        return jsonify({'message':'you already voted '})
+        return jsonify({'message': 'you already voted '})
+
+    # create new upvote
+    upvote = UpVote(user_id=user_id, answer_id=answer.id)
+    db.session.add(upvote)
+    db.session.commit()
+
+    return jsonify({'message': 'upvoted successfully'})
+
+@app.route('/votes/downvote/<int:answer_id>', methods=['POST'])
+def vote_down(answer_id):
+    # get answer by id
+    answer = Answer.query.get(answer_id)
+
+    if not answer:
+        return jsonify({'error': "answer not found"})
+
+    user_id = request.json.get('user_id')
+
+    # check if user has already voted
+    exist_upvote = UpVote.query.filter_by(user_id=user_id, answer_id=answer.id).first()
+    exist_downvote = DownVote.query.filter_by(user_id=user_id, answer_id=answer.id).first()
+
+    if exist_downvote:
+        return jsonify({'message': 'you already downvoted this answer'})
+
+    if exist_upvote:
+        # delete upvote
+        db.session.delete(exist_upvote)
+        db.session.commit()
+
+    # create new downvote
+    downvote = DownVote(user_id=user_id, answer_id=answer.id)
+    db.session.add(downvote)
+    db.session.commit()
+
+    return jsonify({'message': 'downvoted successfully'})
+
+@app.route('/votes/user/<int:user_id>', methods=['GET'])
+def get_user_votes(user_id):
+    upvotes = UpVote.query.filter_by(user_id=user_id).all()
+    upvote_list = [vote.to_dict() for vote in upvotes]
+    downvotes = DownVote.query.filter_by(user_id=user_id).all()
+    downvote_list = [vote.to_dict() for vote in downvotes]
+
+    # calculate the total number of upvotes and downvotes for the user
+    total_upvotes = len(upvotes)
+    total_downvotes = len(downvotes)
+
+    return jsonify({'upvotes': upvote_list, 'downvotes': downvote_list, 'total_upvotes': total_upvotes, 'total_downvotes': total_downvotes})
+
 
 if __name__ == '__main__':
     with app.app_context():  
