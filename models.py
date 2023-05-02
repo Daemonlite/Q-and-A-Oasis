@@ -46,7 +46,6 @@ class Question(db.Model):
     title = db.Column(db.String(255), nullable=False)
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    
     user = db.relationship('User', backref=db.backref('questions', lazy=True))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -112,6 +111,8 @@ class Answer(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     question = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
     topic = db.Column(db.String(300),nullable=False)
+    upvotes = db.relationship('UpVote', backref='answer', lazy=True)
+    downvotes = db.relationship('DownVote',backref='answer',lazy=True)
     user = db.relationship('User', backref=db.backref('answer', lazy=True))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -137,6 +138,8 @@ class Answer(db.Model):
             'user_id': self.user_id,
             'question': self.question,
             'topic':self.topic,
+            'upvotes': [upvote.to_dict() for upvote in self.upvotes],
+            'downvotes':[downvote.to_dict() for downvote in self.downvotes],
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
