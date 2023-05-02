@@ -197,7 +197,7 @@ def create_answer(question_id):
     # Get the data from the request
     content = request.json.get('content')
     user_id = request.json.get('user_id')
-    question = request.json.get('question')
+    question_id = request.json['question_id']
     topic = request.json.get('topic')
 
     # Check if content is provided
@@ -209,11 +209,25 @@ def create_answer(question_id):
         return jsonify({'error': 'User ID is required'}), 400
 
     # Create a new comment
-    answer = Answer(content=content, user_id=user_id, question=question,topic=topic)
+    answer = Answer(content=content, user_id=user_id, question_id=question_id,topic=topic)
     db.session.add(answer)
     db.session.commit()
 
-    return jsonify({'message': 'Answer added successfully', 'comment_id': question}), 201
+    return jsonify({'message': 'Answer added successfully', 'comment_id': question_id}), 201
+
+
+@app.route('/answer/<int:answer_id>', methods=['DELETE'])
+def delete_answer(answer_id):
+    # Get the answer by ID
+    answer = Answer.query.get(answer_id)
+    if not answer:
+        return jsonify({'error': 'answer not found'}), 404
+
+    # Delete the answer
+    db.session.delete(answer)
+    db.session.commit()
+
+    return jsonify({'message': 'Answer deleted successfully'}), 200
 
 
 # Route to get all answers for a question
