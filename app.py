@@ -93,12 +93,12 @@ def delete_user(id):
         return jsonify({'error': 'user not found.'}), 404
 
 @app.route('/users/<int:id>', methods=['PUT'])
-def update_user_info():
-    user = Question.query.get(id)
+def update_user_info(id):
+    user = User.query.get(id)
     if user:
-       user.name = request.json['title']
-       user.profile = request.json['content']
-       user.email = request.json['user_id']
+       user.name = request.json['name']
+       user.profile = request.json['profile']
+       user.email = request.json['email']
        db.session.commit()
        return jsonify({'message': 'user updated successfully.', 'user': user.to_dict()})
     else:
