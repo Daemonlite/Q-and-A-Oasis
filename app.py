@@ -54,6 +54,15 @@ def register_user():
     password = request.json['password']
     profile = request.json['profile']
     
+    if 'name' not in request.json:
+     return jsonify({'error': 'Name field is missing.'}), 400
+    if 'email' not in request.json:
+     return jsonify({'error': 'Email field is missing.'}), 400
+    if 'password' not in request.json:
+     return jsonify({'error': 'Password field is missing.'}), 400
+    if 'profile' not in request.json:
+     return jsonify({'error': 'Profile field is missing.'}), 400
+
     # upload profile image
     result =  cloudinary.uploader.upload(profile)
     profileImageUrl = result['secure_url']
