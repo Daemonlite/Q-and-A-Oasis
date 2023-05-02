@@ -110,14 +110,14 @@ class Answer(db.Model):
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     question = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
-    topic = db.Column(db.String(300),nullable=False)
-    upvotes = db.relationship('UpVote', backref='answer', lazy=True)
-    downvotes = db.relationship('DownVote',backref='answer',lazy=True)
+    topic = db.Column(db.String(300), nullable=False)
+    upvotes = db.relationship('UpVote', backref='answer_upvotes', lazy=True)
+    downvotes = db.relationship('DownVote', backref='answer', lazy=True)
     user = db.relationship('User', backref=db.backref('answer', lazy=True))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    def __init__(self, content, user_id, question,topic):
+    def __init__(self, content, user_id, question, topic):
         self.content = content
         self.user_id = user_id
         self.question = question
@@ -126,50 +126,47 @@ class Answer(db.Model):
         self.updated_at = datetime.utcnow()
 
     def to_dict(self):
-        """
-        Convert Comment model instance to a dictionary.
-
-        Returns:
-        dict: A dictionary representing the Comment model instance.
-        """
         return {
             'id': self.id,
             'content': self.content,
             'user_id': self.user_id,
             'question': self.question,
-            'topic':self.topic,
+            'topic': self.topic,
             'upvotes': [upvote.to_dict() for upvote in self.upvotes],
-            'downvotes':[downvote.to_dict() for downvote in self.downvotes],
+            'downvotes': [downvote.to_dict() for downvote in self.downvotes],
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
+
 
 
 
 #definition for the upvote model
 class UpVote(db.Model):
-    id = db.Column(db.Integer,primary_key = True)
+    id = db.Column(db.Integer,primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
+    answer_id = db.Column(db.Integer, db.ForeignKey('answer.id'), nullable=False)
     user = db.relationship('User', backref=db.backref('vote', lazy=True))
+    answer = db.relationship('Answer', backref=db.backref('upvotes', lazy=True))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    def __init__(self,user_id,question_id,user):
+    def __init__(self, user_id, answer_id, user):
         self.user_id = user_id
-        self.question_id = question_id
+        self.answer_id = answer_id
         self.user = user
         self.created_at = datetime.utcnow()
         self.updated_at = datetime.utcnow()
 
     def to_dict(self):
-        return{
-             'id': self.id,
+        return {
+            'id': self.id,
             'user_id': self.user_id,
-            'question_id': self.question_id,
+            'answer_id': self.answer_id,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
+
 
 #definition for the downvote model
 class DownVote(db.Model):
