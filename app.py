@@ -39,7 +39,7 @@ def get_users():
 
 @app.route('/user/<int:user_id>', methods=["GET"])
 def user_profile(user_id):
-    profile = User.query.get(user_id)
+    profile = db.session.query(User).get(user_id)
     if profile:
         return jsonify(profile.to_dict())
     else:
@@ -120,14 +120,14 @@ def get_questions():
     question_list = [quest.to_dict() for quest in questions]
     return jsonify(quest = question_list)
 
-
 @app.route('/questions/<int:id>',methods=['GET'])
-def get_question_by_id(quest_id):
-    question = Question.query.get(quest_id)
+def get_question_by_id(id):
+    question = db.session.query(Question).get(id)
     if question:
         return jsonify(question.to_dict())
     else:
         return jsonify({'error': 'question not found.'}), 404
+
 
 @app.route('/question/create',methods=['POST'])
 def create_question():
