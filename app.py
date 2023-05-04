@@ -39,7 +39,7 @@ def get_users():
 
 @app.route('/user/<int:user_id>', methods=["GET"])
 def user_profile(user_id):
-    profile = User.query.get(user_id)
+    profile = db.session.query(User).get(user_id)
     if profile:
         return jsonify(profile.to_dict())
     else:
@@ -93,7 +93,7 @@ def login():
 
 @app.route('/users/<int:id>', methods=['DELETE'])
 def delete_user(id):
-    user = User.query.get(id)
+    user = db.session.query(User).get(id)
     if user:
         db.session.delete(user)
         db.session.commit()
@@ -103,7 +103,7 @@ def delete_user(id):
 
 @app.route('/users/<int:id>', methods=['PUT'])
 def update_user_info(id):
-    user = User.query.get(id)
+    user = db.session.query(User).get(id)
     if user:
        user.name = request.json['name']
        user.profile = request.json['profile']
@@ -120,14 +120,14 @@ def get_questions():
     question_list = [quest.to_dict() for quest in questions]
     return jsonify(quest = question_list)
 
-
 @app.route('/questions/<int:id>',methods=['GET'])
-def get_question_by_id(quest_id):
-    question = Question.query.get(quest_id)
+def get_question_by_id(id):
+    question = db.session.query(Question).get(id)
     if question:
         return jsonify(question.to_dict())
     else:
         return jsonify({'error': 'question not found.'}), 404
+
 
 @app.route('/question/create',methods=['POST'])
 def create_question():
@@ -142,7 +142,7 @@ def create_question():
 
 @app.route('/question/<int:id>',methods=["PUT"])
 def update_question(id):
-    quest = Question.query.get(id)
+    quest = db.session.query(Question).get(id)
     if quest:
         quest.title = request.json['title']
         quest.content = request.json['content']
@@ -156,7 +156,7 @@ def update_question(id):
 
 @app.route('/question/<int:id>',methods=["DELETE"])
 def delete_question():
-    question = Question.query.get(id)
+    question = db.session.query(Question).get(id)
     if question:
         db.session.delete(question)
         db.session.commit()
@@ -168,7 +168,7 @@ def delete_question():
 @app.route('/question/<int:question_id>/like', methods=['POST'])
 def create_like(question_id):
     # Get the question by ID
-    question = Question.query.get(question_id)
+    question = db.session.query(Question).get(question_id)
     if not question:
         return jsonify({'error': 'question not found'}), 404
 
@@ -192,7 +192,7 @@ def create_like(question_id):
 @app.route('/question/<int:question_id>/likes', methods=['GET'])
 def get_likes(question_id):
     # Get the question by ID
-    question = question.query.get(question_id)
+    question =  db.session.query(Question).get(question_id)
     if not question:
         return jsonify({'error': 'question not found'}), 404
 
@@ -211,7 +211,7 @@ def get_likes(question_id):
 @app.route('/question/<int:question_id>/answer', methods=['POST'])
 def create_answer(question_id):
     # Get the question by ID
-    quest = Question.query.get(question_id)
+    quest =  db.session.query(Question).get(question_id)
     if not quest:
         return jsonify({'error': 'question not found'}), 404
 
@@ -240,7 +240,7 @@ def create_answer(question_id):
 @app.route('/answer/<int:answer_id>', methods=['DELETE'])
 def delete_answer(answer_id):
     # Get the answer by ID
-    answer = Answer.query.get(answer_id)
+    answer =  db.session.query(Answer).get(answer_id)
     if not answer:
         return jsonify({'error': 'answer not found'}), 404
 
