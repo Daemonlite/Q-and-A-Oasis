@@ -255,7 +255,7 @@ def delete_answer(answer_id):
 @app.route('/question/<int:quest_id>/answers', methods=['GET'])
 def get_answers(quest_id):
     # Get the question by ID
-    question = Question.query.get(quest_id)
+    question = db.session.query(Question).get(quest_id)
     if not question:
         return jsonify({'error': 'Question not found'}), 404
 
@@ -273,7 +273,7 @@ def get_answers(quest_id):
 @app.route('/votes/upvote/<int:vote_id>', methods=['POST'])
 def vote_up(vote_id):
     # get answer by id
-    answer = Answer.query.get(vote_id)
+    answer = db.session.query(Answer).get(vote_id)
 
     if not answer:
         return jsonify({'error': "answer not found"})
@@ -304,7 +304,7 @@ def vote_up(vote_id):
 @app.route('/votes/downvote/<int:answer_id>', methods=['POST'])
 def vote_down(answer_id):
     # get answer by id
-    answer = Answer.query.get(answer_id)
+    answer = db.session.query(Answer).get(answer_id)
 
     if not answer:
         return jsonify({'error': "answer not found"})
