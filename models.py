@@ -1,9 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from flask_sqlalchemy import SQLAlchemy
-# from flask_migrate import Migrate
 from datetime import datetime  # Import datetime for handling timestamps
-
-from datetime import datetime
 # Create an instance of SQLAlchemy
 db = SQLAlchemy()
 
